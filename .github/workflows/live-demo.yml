@@ -47,7 +47,17 @@ jobs:
       - name: Run Crawler
         run: |
           # Run the crawler on the first 30 domains concurrently to populate the dashboard with live data
-          python -c "import asyncio; from crawler.crawler import TechStackCrawler; from crawler.db import get_pool, close_pool; async def run(): await get_pool(); c = TechStackCrawler(max_concurrent=15, request_timeout=6, max_retries=0); await c.run(batch_size=30, max_batches=1); await close_pool(); asyncio.run(run())"
+          python -c "
+          import asyncio
+          from crawler.crawler import TechStackCrawler
+          from crawler.db import get_pool, close_pool
+          async def run():
+              await get_pool()
+              c = TechStackCrawler(max_concurrent=15, request_timeout=6, max_retries=0)
+              await c.run(batch_size=30, max_batches=1)
+              await close_pool()
+          asyncio.run(run())
+          "
 
       - name: Generate Static Pages
         run: |
