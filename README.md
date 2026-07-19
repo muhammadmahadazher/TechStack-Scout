@@ -6,7 +6,7 @@
 [![Database](https://img.shields.io/badge/database-SQLite%20%7C%20PostgreSQL-blue?logo=sqlite&logoColor=white)]()
 [![Deploy Live Demo](https://github.com/muhammadmahadazher/TechStack-Scout/actions/workflows/live-demo.yml/badge.svg)](https://muhammadmahadazher.github.io/TechStack-Scout/)
 
-> **High-Performance Web Technographics Intelligence Platform.** Discover, track, and analyze the software stacks powering the global web. Inspired by [MixRank](https://mixrank.com)'s technographics dataset.
+> **High-Performance Web Technographics Intelligence Platform.** Discover, track, and analyze the software stacks powering the global web.
 
 ### 🔗 [View Live Demo Hosted on GitHub Pages](https://muhammadmahadazher.github.io/TechStack-Scout/)
 
