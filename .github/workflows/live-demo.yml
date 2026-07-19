@@ -1,0 +1,67 @@
+name: Deploy Live Technographics Demo
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *' # Run daily at midnight UTC to refresh crawl data
+  workflow_dispatch: # Allow manual trigger from GitHub UI
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install brotli aiosqlite
+
+      - name: Seed Database
+        run: |
+          # Seed the SQLite database in the environment profile folder
+          python seed.py
+
+      - name: Run Crawler
+        run: |
+          # Run the crawler on the first 30 domains concurrently to populate the dashboard with live data
+          python -c "import asyncio; from crawler.crawler import TechStackCrawler; from crawler.db import get_pool, close_pool; async def run(): await get_pool(); c = TechStackCrawler(max_concurrent=15, request_timeout=6, max_retries=0); await c.run(batch_size=30, max_batches=1); await close_pool(); asyncio.run(run())"
+
+      - name: Generate Static Pages
+        run: |
+          # Compile the SQLite database into a static web dashboard
+          python generate_static_demo.py
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'demo_output'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

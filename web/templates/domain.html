@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}{{ domain.domain }} — TechStack Scout{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="/">Dashboard</a>
+    <span>/</span>
+    <span>{{ domain.domain }}</span>
+</div>
+
+<div class="domain-header">
+    <div class="domain-info">
+        <h1>{{ domain.domain }}</h1>
+        {% if domain.page_title %}
+        <p class="domain-title">{{ domain.page_title }}</p>
+        {% endif %}
+        <div class="domain-meta">
+            {% if domain.industry %}<span class="meta-badge">{{ domain.industry }}</span>{% endif %}
+            {% if domain.country %}<span class="meta-badge">{{ domain.country }}</span>{% endif %}
+            <span class="status-badge status-{{ domain.crawl_status }}">{{ domain.crawl_status }}</span>
+        </div>
+    </div>
+    <div class="domain-stats">
+        <div class="domain-stat">
+            <div class="domain-stat-value">{{ domain.technologies|length if domain.technologies else 0 }}</div>
+            <div class="domain-stat-label">Technologies</div>
+        </div>
+        {% if domain.http_status %}
+        <div class="domain-stat">
+            <div class="domain-stat-value">{{ domain.http_status }}</div>
+            <div class="domain-stat-label">HTTP Status</div>
+        </div>
+        {% endif %}
+        {% if domain.page_size_bytes %}
+        <div class="domain-stat">
+            <div class="domain-stat-value">{{ (domain.page_size_bytes / 1024)|round(1) }}KB</div>
+            <div class="domain-stat-label">Page Size</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if domain.server_header or domain.meta_generator %}
+<div class="panel">
+    <div class="panel-header"><h2>🔍 Server Fingerprint</h2></div>
+    <div class="fingerprint-grid">
+        {% if domain.server_header %}
+        <div class="fingerprint-item">
+            <span class="fingerprint-label">Server</span>
+            <span class="fingerprint-value">{{ domain.server_header }}</span>
+        </div>
+        {% endif %}
+        {% if domain.meta_generator %}
+        <div class="fingerprint-item">
+            <span class="fingerprint-label">Generator</span>
+            <span class="fingerprint-value">{{ domain.meta_generator }}</span>
+        </div>
+        {% endif %}
+        {% if domain.last_crawled %}
+        <div class="fingerprint-item">
+            <span class="fingerprint-label">Last Crawled</span>
+            <span class="fingerprint-value">{{ domain.last_crawled }}</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% if domain.technologies and domain.technologies[0] %}
+<div class="panel">
+    <div class="panel-header"><h2>🛠️ Detected Technology Stack</h2></div>
+    <div class="tech-stack">
+        {% for tech in domain.technologies %}
+        {% if tech.name %}
+        <a href="/technology/{{ tech.slug }}" class="tech-card">
+            <div class="tech-card-header">
+                <span class="tech-card-name">{{ tech.name }}</span>
+                <span class="category-badge category-{{ tech.category.lower().replace(' ', '-') }}">{{ tech.category }}</span>
+            </div>
+            <div class="tech-card-meta">
+                <span class="confidence-badge confidence-{{ (tech.confidence * 100)|int }}">
+                    {{ (tech.confidence * 100)|int }}% confidence
+                </span>
+                <span class="method-badge">{{ tech.method }}</span>
+            </div>
+            {% if tech.evidence %}
+            <div class="tech-card-evidence">{{ tech.evidence[:120] }}{% if tech.evidence|length > 120 %}...{% endif %}</div>
+            {% endif %}
+        </a>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h3>No technologies detected yet</h3>
+    <p>This domain hasn't been crawled or no technologies were detected.</p>
+</div>
+{% endif %}
+{% endblock %}

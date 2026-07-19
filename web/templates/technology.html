@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ technology.name }} — TechStack Scout{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="/">Dashboard</a>
+    <span>/</span>
+    <span>{{ technology.name }}</span>
+</div>
+
+<div class="tech-header">
+    <div class="tech-info">
+        <h1>{{ technology.name }}</h1>
+        <span class="category-badge category-{{ technology.category.lower().replace(' ', '-') }}">{{ technology.category }}</span>
+        {% if technology.description %}
+        <p class="tech-description">{{ technology.description }}</p>
+        {% endif %}
+    </div>
+    <div class="tech-stats">
+        <div class="tech-stat">
+            <div class="tech-stat-value">{{ domains|length }}</div>
+            <div class="tech-stat-label">Sites Detected</div>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="panel-header">
+        <h2>🌐 Domains Using {{ technology.name }}</h2>
+    </div>
+    {% if domains %}
+    <div class="domain-list">
+        {% for d in domains %}
+        <a href="/domain/{{ d.domain_id }}" class="domain-list-item">
+            <div class="domain-list-info">
+                <span class="domain-list-name">{{ d.domain }}</span>
+                {% if d.page_title %}
+                <span class="domain-list-title">{{ d.page_title[:60] }}{% if d.page_title|length > 60 %}...{% endif %}</span>
+                {% endif %}
+            </div>
+            <div class="domain-list-meta">
+                <span class="confidence-badge confidence-{{ (d.confidence_score * 100)|int }}">{{ (d.confidence_score * 100)|int }}%</span>
+                <span class="method-badge">{{ d.detection_method }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No domains found</h3>
+        <p>This technology hasn't been detected on any crawled sites yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
